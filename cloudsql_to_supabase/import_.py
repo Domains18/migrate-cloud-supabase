@@ -37,7 +37,6 @@ def import_to_supabase(input_file: Optional[Path] = None, password: Optional[str
         f"-d {config.SUPABASE_DB} "
         f"--set ON_ERROR_STOP=on "  # Stop on first error
         f"--single-transaction "     # Run as a single transaction
-        f"--sslmode={config.SUPABASE_SSL_MODE} "
         f"-f {dump_file}"
     )
     

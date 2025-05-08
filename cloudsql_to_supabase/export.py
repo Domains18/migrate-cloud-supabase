@@ -32,7 +32,6 @@ def export_cloudsql(password: str = None, schema_only: bool = False):
         f"-h {config.CLOUDSQL_HOST}",
         f"-p {config.CLOUDSQL_PORT}",
         f"-d {config.CLOUDSQL_DB}",
-        f"--sslmode={config.CLOUDSQL_SSL_MODE}",
         "-F p",  # Plain text format
         f"-f {config.OUTPUT_DUMP}"
     ]
