@@ -1,15 +1,20 @@
 [project]
-name = "cloudsql_to_supabase"
+name = "cloudsql-to-supabase"
 version = "0.1.0"
-description = "A tool to migrate data from Google Cloud SQL to Supabase"
-authors = [{ name = "Gibson Kemboi", email = "gibsonsgibson88@gmail.com" }]
+description = "Migrate PostgreSQL databases from Cloud SQL to Supabase easily"
+authors = [
+    { name = "Gibson Kemboi", email = "gibsonsgibson88@gmail.com" }
+]
 readme = "README.md"
 requires-python = ">=3.8"
-dependencies = ["click", "python-dotenv", "pytest", "sqlalchemy", "pandas", "supabase-py"]
+dependencies = [
+    "click",
+    "python-dotenv"
+]
 
-[setup.setuptools]
+[tool.setuptools]
 packages = ["cloudsql_to_supabase"]
 
 
 [project.scripts]
-cloud-sql-to-supabase = "cloudsql_to_supabase.cli:main"
+cloudsql-to-supabase = "cloudsql_to_supabase.cli:cli"

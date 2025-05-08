@@ -8,7 +8,7 @@ def cli():
 @cli.command()
 def migrate():
     """Migrate data from Cloud SQL to Supabase."""
-    export.export_cloud_sql()
+    export.export_cloudsql()
     clean.clean_dump_file()
     import_.import_to_supabase()
     
@@ -16,4 +16,4 @@ def migrate():
 @cli.command()
 def export():
     """Export data from Cloud SQL."""
-    export.export_cloud_sql()
+    export.export_cloudsql()

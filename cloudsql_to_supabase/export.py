@@ -3,7 +3,7 @@ import getpass
 import os
 
 
-def export_cloud_sql():
+def export_cloudsql():
     cmd = (
         f"pg_dump -U {config.CLOUDSQL_USER} -h {config.CLOUDSQL_HOST} "
         f"-d {config.CLOUDSQL_DB} --no-owner --no-privileges --no-comments "
