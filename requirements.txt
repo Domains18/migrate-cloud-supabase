@@ -1,0 +1,6 @@
+subprocess
+os
+re
+pytest
+click
+python-dotenv
