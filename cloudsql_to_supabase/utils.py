@@ -1,9 +1,55 @@
 import subprocess
+import shlex
+from typing import Dict, Optional, List, Union
+import logging
 
-def run_command(command, env=None):
-    print(f"Running command: {command}")
-    result = subprocess.run(command, shell=True, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    if result.returncode != 0:
-        print(result.stderr.decode())
-        raise Exception(f"Command failed with error: {result.stderr.decode()}")
+
+
+logger = logging.getLogger('cloud_to_supabase.utils')
+
+
+def run_command(cmd: str, env: Optional[Dict] = None, show_output: bool = True)-> subprocess.CompletedProcess:
+    """
+        Run a shell command safely with proper logging and error handling.
     
+    Args:
+        cmd: Command to run
+        env: Environment variables
+        show_output: Whether to print command output to console
+        
+    Returns:
+        CompletedProcess instance
+    """
+    
+    safe_cmd = cmd
+    if "PGPASSWORD" in str(env):
+        safe_cmd = cmd.replace(env.get('PGPASSWORD', ''), '************')
+        logger.info(f'Running command: {safe_cmd}')
+        
+        
+        try: 
+            args = shlex.split(cmd)
+            result = subprocess.run(
+                args,
+                env=env,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                check=False
+            )
+            
+            if result.returncode != 0:
+                logger.error(f'command failed with exit code {result.returncode}')
+                logger.error(result.stderr)
+                raise RuntimeError(f'command failed: {result.stderr}')
+            
+            
+            if show_output and result.stdout:
+                logger.info(result.stdout)
+                
+                
+            return result
+        
+        except Exception as e:
+            logger.exception(f'Error executing command: {e}')
+            raise
