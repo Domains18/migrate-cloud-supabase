@@ -27,7 +27,11 @@ SUPABASE_DB = os.getenv("SUPABASE_DB", "postgres")
 SUPABASE_PASSWORD = os.getenv("SUPABASE_PASSWORD")
 SUPABASE_PORT = int(os.getenv("SUPABASE_PORT", 5432))
 SUPABASE_SSL_MODE = os.getenv("SUPABASE_SSL_MODE", "require")
-SUPABASE_SCHEMA = os.getenv("SUPABASE_SCHEMA", "public")
+
+"""
+    Adjust this to match your target schema, in my case I was trying to use development schema in database
+"""
+SUPABASE_SCHEMA = os.getenv("SUPABASE_SCHEMA", "development") 
 
 # Output file paths
 OUTPUT_DIR = Path(os.getenv("OUTPUT_DIR", "."))

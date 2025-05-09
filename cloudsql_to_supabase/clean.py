@@ -19,7 +19,7 @@ class DumpCleaner:
     ) -> None:
         self.input_file = Path(input_file or config.OUTPUT_DUMP)
         self.output_file = Path(output_file or config.CLEANED_DUMP)
-        self.target_schema = target_schema or config.SUPABASE_SCHEMA
+        self.target_schema = target_schema or"development"
         self.target_owner = target_owner or "postgres"
 
         logger.info(
@@ -90,6 +90,11 @@ class DumpCleaner:
         ]
 
         quoted_target_schema = f'"{self.target_schema}"'
+
+        # Add debugging code before the if statement
+        print(f"Current target_schema: '{self.target_schema}'")
+        print(f"Type of target_schema: {type(self.target_schema)}")
+        print(f"Condition result: {self.target_schema != 'public'}")
 
         if self.target_schema != "public":
             schema_replacements_raw = [
@@ -178,7 +183,7 @@ def clean_dump_file(
     cleaner = DumpCleaner(
         input_file=input_file,
         output_file=output_file,
-        target_schema=target_schema,
+        target_schema='development',
         target_owner=target_owner
     )
     return cleaner.clean_dump_file()
