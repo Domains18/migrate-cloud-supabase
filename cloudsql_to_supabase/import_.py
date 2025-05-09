@@ -17,7 +17,7 @@ def import_to_supabase(input_file: Optional[Path] = None, password: Optional[str
     """
     config.validate_config()
     dump_file = input_file or Path(config.CLEANED_DUMP)
-    target_schema = schema or config.SUPABASE_SCHEMA
+    target_schema = schema or 'development'
 
     if not dump_file.exists():
         raise FileNotFoundError(f"Dump file not found: {dump_file}")
