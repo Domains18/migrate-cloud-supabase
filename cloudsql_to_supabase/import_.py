@@ -35,7 +35,6 @@ def import_to_supabase(input_file: Optional[Path] = None, password: Optional[str
             f"-p {config.SUPABASE_PORT} "
             f"-U {config.SUPABASE_USER} "
             f"-d {config.SUPABASE_DB} "
-            f"--sslmode={config.SUPABASE_SSL_MODE} "
             f"-c \"CREATE SCHEMA IF NOT EXISTS {target_schema};\""
         )
         try:
@@ -58,7 +57,6 @@ def import_to_supabase(input_file: Optional[Path] = None, password: Optional[str
     if target_schema != "public":
         cmd += f"--set search_path={target_schema} "
     
-    cmd += f"--sslmode={config.SUPABASE_SSL_MODE} -f {dump_file}"
     
     try:
         utils.run_command(cmd, env)
