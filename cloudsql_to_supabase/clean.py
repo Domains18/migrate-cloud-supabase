@@ -7,17 +7,42 @@ from . import config
 logger = logging.getLogger('cloudsql_to_supabase.clean')
 
 class DumpCleaner:
-    def __init__(self, input_file: Path = None, output_file: Path = None) -> None:
+    def __init__(self, input_file: Path = None, output_file: Path = None, target_schema: str = None) -> None:
         self.input_file = input_file or Path(config.OUTPUT_DUMP)
         self.output_file = output_file or Path(config.CLEANED_DUMP)
+        self.target_schema = target_schema or config.SUPABASE_SCHEMA
+        
         self.skip_patterns = [
             r'^(CREATE|ALTER) ROLE',  # Skip role creation/alteration
             r'^COMMENT ON EXTENSION',  # Skip extension comments
         ]
+        
+        # Regular ownership replacement
+        owner_replacement = 'OWNER TO public;'
+        # If using non-public schema and we have permissions, keep the target schema as owner
+        if self.target_schema != "public":
+            owner_replacement = f'OWNER TO {self.target_schema};'
+            
         self.replacement_rules = [
-            (r'OWNER TO .*?;', 'OWNER TO public;'),  # Change ownership to public
+            (r'OWNER TO .*?;', owner_replacement),
             (r'CREATE SCHEMA .*?;', '-- Schema creation removed'),  # Comment out schema creation
         ]
+        
+        # If we're targeting a non-public schema, add schema modifications
+        if self.target_schema != "public":
+            # Add rules to update schema references in the dump
+            self.replacement_rules.extend([
+                # Update SET search_path statements
+                (r'SET search_path = public', f'SET search_path = {self.target_schema}'),
+                # Update schema references in table names
+                (r'CREATE TABLE public\.', f'CREATE TABLE {self.target_schema}.'),
+                # Update schema references in sequence names
+                (r'CREATE SEQUENCE public\.', f'CREATE SEQUENCE {self.target_schema}.'),
+                # Update schema references in views
+                (r'CREATE VIEW public\.', f'CREATE VIEW {self.target_schema}.'),
+                # Update schema references in functions
+                (r'CREATE FUNCTION public\.', f'CREATE FUNCTION {self.target_schema}.'),
+            ])
         
     def clean_dump_file(self) -> Path:
         """
@@ -57,9 +82,14 @@ class DumpCleaner:
         logger.info(f"Cleaned dump saved as {self.output_file}")
         return self.output_file
 
-def clean_dump_file(input_file: Optional[Path] = None, output_file: Optional[Path] = None) -> Path:
+def clean_dump_file(input_file: Optional[Path] = None, output_file: Optional[Path] = None, target_schema: Optional[str] = None) -> Path:
     """
     Convenience function to clean a SQL dump file
+    
+    Args:
+        input_file: Path to the input SQL dump file
+        output_file: Path to the output cleaned SQL file
+        target_schema: Schema to use in Supabase. If None, uses the one from config
     """
-    cleaner = DumpCleaner(input_file, output_file)
+    cleaner = DumpCleaner(input_file, output_file, target_schema)
     return cleaner.clean_dump_file()
