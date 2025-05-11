@@ -22,16 +22,16 @@ def export_cloudsql(password: str = None, schema_only: bool = False, schema: str
     schema = schema or config.CLOUDSQL_SCHEMA
     logger.info(f"Starting export from CloudSQL database: {config.CLOUDSQL_DB}, schema: {schema}")
     
-    # Build pg_dump command
+    
     cmd_parts = [
         f"pg_dump -U {config.CLOUDSQL_USER}",
         f"-h {config.CLOUDSQL_HOST}",
         f"-p {config.CLOUDSQL_PORT}",
         f"-d {config.CLOUDSQL_DB}",
-        "-F p",  # Plain text format
+        "-F p",  
     ]
     
-    # Add schema if not public
+    
     if schema != "public":
         cmd_parts.append(f"-n {schema}")
     
@@ -41,7 +41,7 @@ def export_cloudsql(password: str = None, schema_only: bool = False, schema: str
     cmd_parts.append(f"-f {config.OUTPUT_DUMP}")
     cmd = " ".join(cmd_parts)
     
-    # Set up environment with password
+    
     env = os.environ.copy()
     if password is None:
         env['PGPASSWORD'] = getpass.getpass("Enter Cloud SQL password: ")

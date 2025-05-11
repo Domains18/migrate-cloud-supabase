@@ -1,21 +1,21 @@
 import re
 import logging
 from pathlib import Path
-from typing import Optional, List, Tuple # Added Tuple
+from typing import Optional, List, Tuple 
 
-# Assuming config is a module in the same directory or an accessible path
-from . import config # If config.py is in the same directory as this script
+
+from . import config 
 
 logger = logging.getLogger('cloudsql_to_supabase.clean')
 
 class DumpCleaner:
-    # ... (__init__ and _build_problematic_role_pattern methods remain the same) ...
+    
     def __init__(
         self,
         input_file: Optional[Path] = None,
         output_file: Optional[Path] = None,
         target_schema: Optional[str] = None,
-        target_owner: Optional[str] = None, # Added target_owner
+        target_owner: Optional[str] = None, 
     ) -> None:
         self.input_file = Path(input_file or config.OUTPUT_DUMP)
         self.output_file = Path(output_file or config.CLEANED_DUMP)
@@ -30,7 +30,7 @@ class DumpCleaner:
         self.problematic_roles_to_filter: List[str] = ["cloudsqlsuperuser", "cloudsqladmin"]
         self.problematic_role_match_pattern: Optional[str] = self._build_problematic_role_pattern()
 
-        # Crucial: Initialize these by calling the build methods
+        
         self.skip_patterns: List[re.Pattern] = self._build_skip_patterns()
         self.replacement_rules: List[Tuple[re.Pattern, str]] = self._build_replacement_rules()
 
@@ -47,7 +47,7 @@ class DumpCleaner:
         return pattern
 
     def _build_skip_patterns(self) -> List[re.Pattern]:
-        # Define raw pattern strings first
+        
         raw_patterns_definitions = [
             r'^\s*(CREATE|ALTER)\s+ROLE\b',
             r'^\s*COMMENT ON EXTENSION\s+(?:pg_stat_statements|plpgsql)\s*;',
@@ -67,19 +67,19 @@ class DumpCleaner:
         compiled_patterns = []
         for p_str in raw_patterns_definitions:
             try:
-                # logger.debug(f"Compiling skip pattern: >>>{p_str}<<<") # Optional: log every pattern
+                
                 compiled_patterns.append(re.compile(p_str, re.IGNORECASE))
             except re.error as e:
                 logger.error(f"Regex compilation FAILED for skip pattern: >>>{p_str}<<<")
                 logger.error(f"Error details: {e}")
-                raise  # Re-raise the error to stop execution
+                raise  
         return compiled_patterns
 
     def _build_replacement_rules(self) -> List[Tuple[re.Pattern, str]]:
         owner_replacement_str = f'OWNER TO {self.target_owner};'
-        # logger.debug(f"Owner replacement string for objects: {owner_replacement_str}") # Already logged in __init__
+        
 
-        # Define raw rules: list of tuples (pattern_string, replacement_string)
+        
         raw_rules_definitions: List[Tuple[str, str]] = [
             (r'OWNER TO (?:"[^"]+"|[^\s;]+);', owner_replacement_str),
             (r'^\s*CREATE SCHEMA\s+(?!public\b)(?!"?' + re.escape(self.target_schema) + r'"?\b)[^;]+?;', '-- Removed CREATE SCHEMA for non-target, non-public schema: \\g<0>'),
@@ -91,7 +91,7 @@ class DumpCleaner:
 
         quoted_target_schema = f'"{self.target_schema}"'
 
-        # Add debugging code before the if statement
+        
         print(f"Current target_schema: '{self.target_schema}'")
         print(f"Type of target_schema: {type(self.target_schema)}")
         print(f"Condition result: {self.target_schema != 'public'}")
@@ -111,15 +111,15 @@ class DumpCleaner:
         compiled_rules = []
         for p_str, repl_str in raw_rules_definitions:
             try:
-                # logger.debug(f"Compiling replacement pattern: >>>{p_str}<<< with replacement: >>>{repl_str}<<<") # Optional
+                
                 compiled_rules.append((re.compile(p_str, re.IGNORECASE), repl_str))
             except re.error as e:
                 logger.error(f"Regex compilation FAILED for replacement pattern: >>>{p_str}<<<")
                 logger.error(f"Error details: {e}")
-                raise # Re-raise the error
+                raise 
         return compiled_rules
 
-    # ... (clean_dump_file method and the rest of the class remain the same) ...
+    
     def clean_dump_file(self) -> Path:
         logger.info(f"Starting cleaning of dump file: {self.input_file}")
 
@@ -137,9 +137,9 @@ class DumpCleaner:
                 lines_processed_count += 1
                 processed_line = line
                 skipped_by_pattern = False
-                for pattern in self.skip_patterns: # These are already compiled
+                for pattern in self.skip_patterns: 
                     if pattern.search(processed_line):
-                        # logger.debug(f"Line {line_num} skipped by pattern: {pattern.pattern}\n\t{processed_line.strip()}")
+                        
                         outfile.write(f"-- SKIPPED LINE (by pattern {pattern.pattern}): {processed_line.strip()}\n")
                         skipped_lines_count += 1
                         skipped_by_pattern = True
@@ -147,7 +147,7 @@ class DumpCleaner:
                 if skipped_by_pattern:
                     continue
 
-                for pattern, replacement in self.replacement_rules: # These are already compiled
+                for pattern, replacement in self.replacement_rules: 
                     processed_line, count = pattern.subn(replacement, processed_line)
                     if count > 0:
                         total_modifications_count += count
@@ -166,7 +166,7 @@ def clean_dump_file(
     input_file: Optional[Path] = None,
     output_file: Optional[Path] = None,
     target_schema: Optional[str] = None,
-    target_owner: Optional[str] = None, # Added target_owner
+    target_owner: Optional[str] = None, 
 ) -> Path:
     """
     Cleans a PostgreSQL dump file to make it suitable for import.

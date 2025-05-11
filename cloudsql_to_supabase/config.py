@@ -3,17 +3,17 @@ from pathlib import Path
 from dotenv import load_dotenv
 import logging
 
-# Configure logging
+
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger('cloudsql_to_supabase')
 
-# Load environment variables
+
 load_dotenv()
 
-# Database configurations
+
 CLOUDSQL_USER = os.getenv("CLOUDSQL_USER")
 CLOUDSQL_HOST = os.getenv("CLOUDSQL_HOST")
 CLOUDSQL_DB = os.getenv("CLOUDSQL_DB")
@@ -33,12 +33,12 @@ SUPABASE_SSL_MODE = os.getenv("SUPABASE_SSL_MODE", "require")
 """
 SUPABASE_SCHEMA = os.getenv("SUPABASE_SCHEMA", "development") 
 
-# Output file paths
+
 OUTPUT_DIR = Path(os.getenv("OUTPUT_DIR", "."))
 OUTPUT_DUMP = OUTPUT_DIR / os.getenv("OUTPUT_DUMP", "backup.sql")
 CLEANED_DUMP = OUTPUT_DIR / os.getenv("CLEANED_DUMP", "cleaned_backup.sql")
 
-# Validation function
+
 def validate_config():
     """Validate that the required environment variables are set."""
     required_vars = {
@@ -54,5 +54,5 @@ def validate_config():
     if missing:
         raise ValueError(f"Missing required environment variables: {', '.join(missing)}")
     
-    # Create output directory if it doesn't exist
+    
     OUTPUT_DIR.mkdir(exist_ok=True)

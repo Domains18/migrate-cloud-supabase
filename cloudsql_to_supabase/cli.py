@@ -101,7 +101,7 @@ def validate():
         config.validate_config()
         click.echo("Configuration is valid!")
         
-        # Show current configuration
+        
         click.echo("\nCurrent configuration:")
         click.echo(f"CloudSQL: {config.CLOUDSQL_USER}@{config.CLOUDSQL_HOST}:{config.CLOUDSQL_PORT}/{config.CLOUDSQL_DB}")
         click.echo(f"Supabase: {config.SUPABASE_USER}@{config.SUPABASE_HOST}:{config.SUPABASE_PORT}/{config.SUPABASE_DB}")

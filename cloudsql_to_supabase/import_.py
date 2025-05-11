@@ -24,11 +24,11 @@ def import_to_supabase(input_file: Optional[Path] = None, password: Optional[str
 
     logger.info(f"Importing file {dump_file} into Supabase database: {config.SUPABASE_DB}, schema: {target_schema}")
 
-    # Set up environment with password
+    
     env = os.environ.copy()
     env['PGPASSWORD'] = password or config.SUPABASE_PASSWORD
 
-    # Create schema if it doesn't exist (and it's not 'public')
+    
     if target_schema != "public":
         create_schema_cmd = (
             f"psql -h {config.SUPABASE_HOST} "
@@ -43,7 +43,7 @@ def import_to_supabase(input_file: Optional[Path] = None, password: Optional[str
         except Exception as e:
             logger.warning(f"Failed to create schema, it may already exist: {e}")
 
-    # Build psql command
+    
     cmd = (
         f"psql -h {config.SUPABASE_HOST} "
         f"-p {config.SUPABASE_PORT} "
@@ -53,11 +53,11 @@ def import_to_supabase(input_file: Optional[Path] = None, password: Optional[str
         f"--single-transaction "
     )
 
-    # Set search_path if using non-public schema
+    
     if target_schema != "public":
         cmd += f"--set search_path={target_schema} "
 
-    # Attach SQL file
+    
     cmd += f"-f {dump_file} "
 
     try:
